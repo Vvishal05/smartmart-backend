@@ -1,9 +1,8 @@
 const express = require('express');
-const db = require('../config/db');
+const db = require('./db'); // CHANGED
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 
-// Middleware to verify token
 const verifyToken = (req, res, next) => {
     const token = req.headers['authorization'];
     if (!token) return res.status(403).json({ message: 'No token provided' });
@@ -15,7 +14,6 @@ const verifyToken = (req, res, next) => {
     });
 };
 
-// Get Cart Items
 router.get('/', verifyToken, async (req, res) => {
     try {
         const query = `
@@ -30,13 +28,10 @@ router.get('/', verifyToken, async (req, res) => {
     }
 });
 
-// Add to Cart
 router.post('/', verifyToken, async (req, res) => {
     const { productId, quantity } = req.body;
     try {
-        // Check if exists
         const [existing] = await db.query('SELECT * FROM cart WHERE user_id = ? AND product_id = ?', [req.userId, productId]);
-        
         if (existing.length > 0) {
             await db.query('UPDATE cart SET quantity = quantity + ? WHERE id = ?', [quantity, existing[0].id]);
         } else {
@@ -48,7 +43,6 @@ router.post('/', verifyToken, async (req, res) => {
     }
 });
 
-// Remove from Cart
 router.delete('/:id', verifyToken, async (req, res) => {
     try {
         await db.query('DELETE FROM cart WHERE id = ?', [req.params.id]);

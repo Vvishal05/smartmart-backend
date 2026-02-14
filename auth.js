@@ -1,26 +1,23 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const db = require('../config/db');
+// CHANGED: Import db from the same folder
+const db = require('./db'); 
 const router = express.Router();
 
-// Register
 router.post('/register', async (req, res) => {
     const { name, email, password, role } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 8);
-        const userRole = role === 'admin' ? 'admin' : 'user'; // Simple role assignment for demo
-        
+        const userRole = role === 'admin' ? 'admin' : 'user';
         await db.query('INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)', 
         [name, email, hashedPassword, userRole]);
-        
         res.status(201).json({ message: 'User registered successfully' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// Login
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     try {

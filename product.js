@@ -1,8 +1,7 @@
 const express = require('express');
-const db = require('../config/db');
+const db = require('./db'); // CHANGED
 const router = express.Router();
 
-// Get All Products (Search & Filter)
 router.get('/', async (req, res) => {
     const { search, category } = req.query;
     let query = 'SELECT * FROM products WHERE 1=1';
@@ -25,7 +24,6 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Admin: Add Product
 router.post('/', async (req, res) => {
     const { name, description, price, image, category, stock } = req.body;
     try {
@@ -37,7 +35,6 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Admin: Delete Product
 router.delete('/:id', async (req, res) => {
     try {
         await db.query('DELETE FROM products WHERE id = ?', [req.params.id]);
